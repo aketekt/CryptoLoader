@@ -45,7 +45,7 @@ program
                         resolution = "1d";
                         resolutionInSeconds = 86400000;
                 }
-                var params = {symbol: pair, interval: resolution, startTime: startTS, endTime: endTS}
+                //var params = {};
             break;
             case 'poloniex':
                 var startTS = new Date(startTime).getTime() / 1000;
@@ -91,7 +91,7 @@ program
             {
             endTS = startTS + (resolutionInSeconds * maxDatapointsPerRequest); 
             };
-            params = {command: requestCommand, symbol: pair, interval: resolution, startTime: startTS, endTime: endTS}
+            var params = {command: requestCommand, symbol: pair, interval: resolution, startTime: startTS, endTime: endTS}
                 request.returnChartData(params,(err, response) => 
                 
                 {  
