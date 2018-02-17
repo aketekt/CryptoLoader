@@ -19,7 +19,7 @@ program
     .arguments('<startTime>')
     .arguments('<endTime>')
     .arguments('<resolution>')
-    .action(function(exchange, base, quote, startTime, endTime,resolution) 
+    .action(function(exchange, base, quote, startTime, endTime, resolution) 
     {
         switch(exchange){
             case 'binance':
