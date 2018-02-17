@@ -1,28 +1,18 @@
 {
-  "name": "node-polo",
+  "name": "cryptoloader",
   "version": "2.0.0-git",
-  "description": "Yet another unofficial Node.js wrapper for the Poloniex cryptocurrency exchange APIs",
+  "description": "Simple crypto data downloader",
   "keywords": [
     "poloniex",
     "exchange",
     "bitcoin",
     "cryptocurrency"
   ],
-  "bugs": {
-    "url": "https://github.com/tylerfilla/node-poloniex-unofficial/issues"
-  },
-  "license": "MIT",
-  "author": "Tyler Filla <tylerfilla@gmail.com> (https://github.com/tylerfilla)",
+  "license": "ISC",
+  "author": "Aketekt",
   "main": "lib/polonode.js",
   "bin": {
-    "downloader": "./index.js"
-  },
-  "scripts": {
-    "test": "./script/test.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/tylerfilla/node-poloniex-unofficial.git"
+    "cryptoloader": "./index.js"
   },
   "dependencies": {
     "autobahn": "^0.10.1",
@@ -42,10 +32,7 @@
     "eslint": "^2.13.1",
     "mocha": "^3.0.2"
   },
-  "homepage": "https://github.com/tylerfilla/node-poloniex-unofficial#readme",
   "directories": {
-    "example": "examples",
-    "lib": "lib",
-    "test": "test"
+    "lib": "lib"
   }
 }
