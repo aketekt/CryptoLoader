@@ -24,10 +24,10 @@ cryptoloader <exchange> <base> <quote> <startTime> <endTime> <resolution>
 *Input Formats*  
 
 startTime/endTime: mm/dd/yyyy  
-Resolution: 
+Resolution:  
 `minute`     
 `hour`  
-`day`
+`day`  
 `<A value the current exchange API accepts>` (Passes value directly into request params)  
 
 

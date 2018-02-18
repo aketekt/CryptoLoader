@@ -149,8 +149,7 @@ program
                     var seconds = "0" + date.getSeconds();
                     var formattedTime = hours.substr(-2) + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
                     element[0] = formattedTime;       
-                    var dateString = ('0' + date.getDate()).slice(-2) +" " + ('0' + (date.getMonth()+1)).slice(-2) + " "+ date.getFullYear();
-                    element[11] = dateString;
+                    var dateString =  ('0' + (date.getMonth()+1)).slice(-2) + ' ' + ('0' + date.getDate()).slice(-2) + ' ' + date.getFullYear();                    element[11] = dateString;
                     var date = new Date(element[6]);
                     var hours = "0" + date.getHours();
                     var minutes = "0" + date.getMinutes();
@@ -201,7 +200,7 @@ program
                 var seconds = "0" + date.getSeconds();
                 var formattedTime = hours.substr(-2) + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
                 element.openTime = formattedTime;       
-                var dateString = ('0' + date.getDate()).slice(-2) +" " + ('0' + (date.getMonth()+1)).slice(-2) + " "+ date.getFullYear();
+                var dateString =  ('0' + (date.getMonth()+1)).slice(-2) + ' ' + ('0' + date.getDate()).slice(-2) + ' ' + date.getFullYear();
                 element.date = dateString;
                 element.symbol = base+quote;
             });
