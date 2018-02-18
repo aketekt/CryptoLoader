@@ -9,9 +9,7 @@ const prompt = require('co-prompt');
 const program = require('commander');
 const chalk = require('chalk');
 
-
-let dataFile = [];
-
+let data = [];
 
 // CMD
 program
@@ -31,6 +29,7 @@ program
                 var PUBLIC_URL = "https://api.binance.com//api/v1/klines";
                 var maxDatapointsPerRequest = 500;
                 var resolutionInSeconds = 0;
+
                 switch(resolution) 
                 {
                     case 'minute':  
@@ -44,42 +43,37 @@ program
                     case 'day': 
                         resolution = "1d";
                         resolutionInSeconds = 86400000;
-                }
-                //var params = {};
-            break;
-            case 'poloniex':
-                var startTS = new Date(startTime).getTime() / 1000;
-                var endTS = new Date(endTime).getTime() / 1000;
-                var pair = base + '_' + quote;
-                var PUBLIC_URL = 'https://poloniex.com/public';
-                var requestCommand = 'returnChartData';
-                var maxDatapointsPerRequest = 200000;
-                var resolutionInSeconds = 0;
-                    
-                switch(resolution) 
-                {
-                    case 'minute':  
-                        resolution = 300;
-                        resolutionInSeconds = resolution;
-                        console.log(chalk.yellow("Warning: API limit, Minimum is 5m resolution, Downloading 5m..."));
-                    break;
-                    case 'hour': 
-                        resolution = 1800;
-                        resolutionInSeconds = resolution;
-                        console.log(chalk.yellow("Warning: API limit, Resolution cannot be 1h, Downloading 30m..."));
-                    break;
-                    case 'day': 
-                        resolution = 86400;
-                        resolutionInSeconds = resolution;
-                }
-                                        
-        }
+                };
+                break;
+                case 'poloniex':
+                    var startTS = new Date(startTime).getTime() / 1000;
+                    var endTS = new Date(endTime).getTime() / 1000;
+                    var pair = base + '_' + quote;
+                    var PUBLIC_URL = 'https://poloniex.com/public';
+                    var requestCommand = 'returnChartData';
+                    var maxDatapointsPerRequest = 200000;
+                    var resolutionInSeconds = 0;
+                        
+                    switch(resolution) 
+                    {
+                        case 'minute':  
+                            resolution = 300;
+                            resolutionInSeconds = resolution;
+                            console.log(chalk.yellow("Warning: API limit, Minimum is 5m resolution, Downloading 5m..."));
+                        break;
+                        case 'hour': 
+                            resolution = 1800;
+                            resolutionInSeconds = resolution;
+                            console.log(chalk.yellow("Warning: API limit, Resolution cannot be 1h, Downloading 30m..."));
+                        break;
+                        case 'day': 
+                            resolution = 86400;
+                            resolutionInSeconds = resolution;
+                    };                                         
+            };
         
-
         // Set Params for API request
         const request = new wrapper.publicAPI(PUBLIC_URL, exchange);
-        var JSONfileName = base + quote + '-' +startTS +'-'+ endTS + '.json';
-        var CSVfileName = base + quote + '-' +startTS +'-'+ endTS + '.csv';
         
         //Loop and create request blocks
         var windowEnd = endTS; 
@@ -87,23 +81,21 @@ program
             setTimeout(function(){
                 if(startTS + (resolutionInSeconds * maxDatapointsPerRequest) > windowEnd)
                 {
-                endTS = windowEnd;
+                    endTS = windowEnd;
                 } else 
-                {
-                endTS = startTS + (resolutionInSeconds * maxDatapointsPerRequest); 
-                };
+                    {
+                        endTS = startTS + (resolutionInSeconds * maxDatapointsPerRequest); 
+                    };
                 var params = {command: requestCommand, symbol: pair, interval: resolution, startTime: startTS, endTime: endTS}
-                    request.returnChartData(params,(err, response) => 
-                    
+                    request.returnChartData(params,(err, response) =>             
                     {  
                         if (err) {
                             throw err.msg;
-                        }
-                        else console.log('response recieved');
-                        response.forEach(function(item) {
-                            dataFile.push(item)
-                        }); 
+                        } else console.log('response recieved');
                         
+                        response.forEach(function(item) {
+                            data.push(item)
+                        }); 
                         
                         if(startTS != windowEnd){
                             loop();
@@ -119,7 +111,7 @@ program
         switch(exchange) 
         {
             case 'binance':
-                dataFile.forEach(function(element) 
+                data.forEach(function(element) 
                 {
                     var date = new Date(element[0]);
                     var hours = "0" + date.getHours();
@@ -136,11 +128,9 @@ program
                     var formattedTime = hours.slice(-2) + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
                     element[6] = formattedTime;
                     element.symbol = base+quote;
-                });
-                
-                var dataList = dataFile.map(function(dataPoint)
+                });               
+                var dataList = data.map(function(dataPoint)
                 { 
-                    
                     return { 
                         openTime: dataPoint[0], 
                         open: dataPoint[1],
@@ -158,7 +148,7 @@ program
                 });
             break;
             case 'poloniex':
-            dataFile.forEach(function(element) 
+            data.forEach(function(element) 
             {   
                 var dateToMilSecs = element.date * 1000;
                 var date = new Date(dateToMilSecs);
@@ -171,23 +161,25 @@ program
                 element.date = dateString;
                 element.symbol = base+quote;
             });
-            dataList = dataFile;
+            dataList = data;
             
         }
-        console.log(dataList);
+        //console.log(dataList);
+        var JSONfileName = base + quote + '-' +startTS +'-'+ endTS + '.json';
+        var CSVfileName = base + quote + '-' +startTS +'-'+ endTS + '.csv';
         let fields = ['symbol', 'date', 'openTime','open', 'high', 'low', 'close', 'volume']
-        
         var result = json2csv({ data: dataList, fields: fields });
+        
         fs.writeFile(CSVfileName, result, function(err) 
         {
             if (err)
             {
                 console.log(err);
             } else 
-            {
-                console.log(chalk.green("filesaved"));
-            }
+                {
+                    console.log(chalk.green("filesaved"));
+                }
         });  
-    }
+    };
 });  
 program.parse(process.argv);
