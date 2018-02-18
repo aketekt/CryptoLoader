@@ -8,6 +8,7 @@ const co = require('co');
 const prompt = require('co-prompt');
 const program = require('commander');
 const chalk = require('chalk');
+const dataFormat = require("./lib/common/dataFormat.js");
 
 let data = [];
 
@@ -133,6 +134,8 @@ program
     //Parse the data and edit it
     function parseData()
     {
+   
+        
         switch(exchange) 
         {
             case 'binance':
@@ -142,19 +145,11 @@ program
                 //Format dates, times and add symbol  
                 data.forEach(function(element) 
                 {
-                    var date = new Date(element[0]);
-                    var hours = "0" + date.getHours();
-                    var minutes = "0" + date.getMinutes();
-                    var seconds = "0" + date.getSeconds();
-                    var formattedTime = hours.substr(-2) + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
-                    element[0] = formattedTime;       
-                    var dateString =  ('0' + (date.getMonth()+1)).slice(-2) + ' ' + ('0' + date.getDate()).slice(-2) + ' ' + date.getFullYear();                    element[11] = dateString;
-                    var date = new Date(element[6]);
-                    var hours = "0" + date.getHours();
-                    var minutes = "0" + date.getMinutes();
-                    var seconds = "0" + date.getSeconds();
-                    var formattedTime = hours.slice(-2) + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
-                    element[6] = formattedTime;
+                    let openTime = new Date(element[0]);
+                    element[0] = dataFormat.formatTime(openTime);      
+                    let closeTime = new Date(element[6]);
+                    element[6] = dataFormat.formatTime(closeTime);
+                    element[11] = dataFormat.formatDate(openTime); 
                     element.symbol = base+quote;        
                 });               
             } catch (error) 
@@ -194,15 +189,10 @@ program
             console.log(chalk.cyan('     DATA: ')+ 'Parsing data...');
             data.forEach(function(element) 
             {   
-                var dateToMilSecs = element.date * 1000;
-                var date = new Date(dateToMilSecs);
-                var hours = "0" + date.getHours();
-                var minutes = "0" + date.getMinutes();
-                var seconds = "0" + date.getSeconds();
-                var formattedTime = hours.substr(-2) + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
-                element.openTime = formattedTime;       
-                var dateString =  ('0' + (date.getMonth()+1)).slice(-2) + ' ' + ('0' + date.getDate()).slice(-2) + ' ' + date.getFullYear();
-                element.date = dateString;
+                let dateToMilSecs = element.date * 1000;
+                let openTime = new Date(dateToMilSecs);
+                element.openTime = dataFormat.formatTime(openTime);       
+                element.date = dataFormat.formatDate(openTime);
                 element.symbol = base+quote;
             });
             dataList = data;        
