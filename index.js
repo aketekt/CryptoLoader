@@ -127,7 +127,7 @@ program
                     } else parseData()
                 },0);           
             })
-        }
+        };
 
     loop();
 
@@ -180,7 +180,8 @@ program
                         trades: dataPoint[8],
                         takerBaseAssetVolume: dataPoint[9],
                         takerQuoteAssetVolume: dataPoint[10],
-                        date: dataPoint[11]        
+                        date: dataPoint[11],
+                        symbol: dataPoint.symbol        
                     };              
                 });              
             } catch (error) 
@@ -188,9 +189,10 @@ program
                 console.log(error);
             }
                 
-                        
+            console.log(base+quote);          
             break;
             case 'poloniex':
+            
             data.forEach(function(element) 
             {   
                 var dateToMilSecs = element.date * 1000;
@@ -208,7 +210,6 @@ program
             
         };
 
-        
         let fields = ['symbol', 'date', 'openTime','open', 'high', 'low', 'close', 'volume']
         var result = json2csv({ data: dataList, fields: fields });
         
