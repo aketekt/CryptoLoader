@@ -74,11 +74,16 @@ program
         
         // Set Params for API request
         const request = new wrapper.publicAPI(PUBLIC_URL, exchange);
+        var JSONfileName = base + quote + '-' +startTS +'-'+ endTS + '.json';
+        var CSVfileName = base + quote + '-' +startTS +'-'+ endTS + '.csv';
         
         //Loop and create request blocks
-        var windowEnd = endTS; 
+        var windowEnd = endTS;
+
         function loop(){
-            setTimeout(function(){
+            setTimeout(function()
+            {
+                
                 if(startTS + (resolutionInSeconds * maxDatapointsPerRequest) > windowEnd)
                 {
                     endTS = windowEnd;
@@ -86,24 +91,34 @@ program
                     {
                         endTS = startTS + (resolutionInSeconds * maxDatapointsPerRequest); 
                     };
-                var params = {command: requestCommand, symbol: pair, interval: resolution, startTime: startTS, endTime: endTS}
-                    request.returnChartData(params,(err, response) =>             
-                    {  
-                        if (err) {
-                            throw err.msg;
-                        } else console.log('response recieved');
-                        
-                        response.forEach(function(item) {
-                            data.push(item)
-                        }); 
-                        
-                        if(startTS != windowEnd){
-                            loop();
-                        } else parseData()
-                    },0);
-                startTS = endTS; 
+
+                var params = {
+                                command: requestCommand, 
+                                symbol: pair, 
+                                interval: resolution, 
+                                startTime: startTS, 
+                                endTime: endTS
+                            }
+
+                request.returnChartData(params,(err, response) =>             
+                {  
+                    if (err) {
+                        throw err.msg;
+                    } else console.log('response recieved');
+                    
+                    response.forEach(function(item) {
+                        data.push(item)
+                    }); 
+                    
+                    startTS = endTS; 
+
+                    if(startTS != windowEnd){
+                        loop();
+                    } else parseData()
+                },0);           
             })
         }
+
     loop();
 
     function parseData() 
@@ -165,8 +180,7 @@ program
             
         }
         //console.log(dataList);
-        var JSONfileName = base + quote + '-' +startTS +'-'+ endTS + '.json';
-        var CSVfileName = base + quote + '-' +startTS +'-'+ endTS + '.csv';
+        
         let fields = ['symbol', 'date', 'openTime','open', 'high', 'low', 'close', 'volume']
         var result = json2csv({ data: dataList, fields: fields });
         
@@ -177,7 +191,7 @@ program
                 console.log(err);
             } else 
                 {
-                    console.log(chalk.green("filesaved"));
+                    console.log(chalk.green("file saved as:" + CSVfileName));
                 }
         });  
     };
