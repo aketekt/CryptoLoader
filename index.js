@@ -26,7 +26,7 @@ program
                 var startTS = new Date(startTime).getTime();
                 var endTS = new Date(endTime).getTime();
                 var pair =  quote + base;
-                var PUBLIC_URL = "https://api.binance.com//api/v1/klines";
+                var PUBLIC_URL = "https://api.binance.com/api/v1/klines";
                 var maxDatapointsPerRequest = 500;
                 var resolutionInSeconds = 0;
 
@@ -99,16 +99,26 @@ program
                                 startTime: startTS, 
                                 endTime: endTS
                             }
-
+                
                 request.returnChartData(params,(err, response) =>             
-                {  
+                {   
+                    //Log some human readable dates for each request. 
+                    if(exchange != 'poloniex')
+                    {
+                        console.log(chalk.cyan('     REQUEST BLOCK: ')+ new Date(startTS) + ' - ' + new Date(endTS));          
+                    }   else console.log(chalk.cyan('     REQUEST BLOCK: ')+ new Date((startTS *1000)) + ' - ' + new Date((endTS * 1000))); 
+                       
                     if (err) {
                         throw err.msg;
-                    } else console.log('response recieved');
+                    } else console.log(chalk.cyan('     RESPONSE: ')+'200');
                     
                     response.forEach(function(item) {
                         data.push(item)
-                    }); 
+                       
+                    });
+                    if (err) {
+                        throw err.msg;
+                    } else console.log(chalk.cyan('     DATA: ') + 'Recieved');
                     
                     startTS = endTS; 
 
@@ -121,11 +131,16 @@ program
 
     loop();
 
+    //Parse the data and edit it
     function parseData() 
     {
         switch(exchange) 
         {
             case 'binance':
+            console.log(chalk.cyan('     DATA: ')+ 'Parsing data...');
+            try 
+            {
+                //Format dates, times and add symbol  
                 data.forEach(function(element) 
                 {
                     var date = new Date(element[0]);
@@ -142,8 +157,16 @@ program
                     var seconds = "0" + date.getSeconds();
                     var formattedTime = hours.slice(-2) + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
                     element[6] = formattedTime;
-                    element.symbol = base+quote;
+                    element.symbol = base+quote;        
                 });               
+            } catch (error) 
+            {
+                console.log(error);
+            }
+            
+            try 
+            {
+                // Update dataPoint keys
                 var dataList = data.map(function(dataPoint)
                 { 
                     return { 
@@ -158,9 +181,15 @@ program
                         trades: dataPoint[8],
                         takerBaseAssetVolume: dataPoint[9],
                         takerQuoteAssetVolume: dataPoint[10],
-                        date: dataPoint[11]
-                    };                     
-                });
+                        date: dataPoint[11]        
+                    };              
+                });              
+            } catch (error) 
+            {
+                console.log(error);
+            }
+                
+                        
             break;
             case 'poloniex':
             data.forEach(function(element) 
@@ -178,8 +207,8 @@ program
             });
             dataList = data;
             
-        }
-        //console.log(dataList);
+        };
+
         
         let fields = ['symbol', 'date', 'openTime','open', 'high', 'low', 'close', 'volume']
         var result = json2csv({ data: dataList, fields: fields });
@@ -191,7 +220,7 @@ program
                 console.log(err);
             } else 
                 {
-                    console.log(chalk.green("file saved as:" + CSVfileName));
+                    console.log(chalk.greenBright("     FILE SAVED AS: ") + CSVfileName);
                 }
         });  
     };
