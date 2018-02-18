@@ -21,7 +21,8 @@ program
     .arguments('<resolution>')
     .action(function(exchange, base, quote, startTime, endTime, resolution) 
     {
-        switch(exchange){
+        switch(exchange)
+        {
             case 'binance':
                 var startTS = new Date(startTime).getTime();
                 var endTS = new Date(endTime).getTime();
@@ -44,35 +45,35 @@ program
                         resolution = "1d";
                         resolutionInSeconds = 86400000;
                 };
-                break;
-                case 'poloniex':
-                    var startTS = new Date(startTime).getTime() / 1000;
-                    var endTS = new Date(endTime).getTime() / 1000;
-                    var pair = base + '_' + quote;
-                    var PUBLIC_URL = 'https://poloniex.com/public';
-                    var requestCommand = 'returnChartData';
-                    var maxDatapointsPerRequest = 200000;
-                    var resolutionInSeconds = 0;
-                        
-                    switch(resolution) 
-                    {
-                        case 'minute':  
-                            resolution = 300;
-                            resolutionInSeconds = resolution;
-                            console.log(chalk.yellow("Warning: API limit, Minimum is 5m resolution, Downloading 5m..."));
-                        break;
-                        case 'hour': 
-                            resolution = 1800;
-                            resolutionInSeconds = resolution;
-                            console.log(chalk.yellow("Warning: API limit, Resolution cannot be 1h, Downloading 30m..."));
-                        break;
-                        case 'day': 
-                            resolution = 86400;
-                            resolutionInSeconds = resolution;
-                    };                                         
+            break;
+            case 'poloniex':
+                var startTS = new Date(startTime).getTime() / 1000;
+                var endTS = new Date(endTime).getTime() / 1000;
+                var pair = base + '_' + quote;
+                var PUBLIC_URL = 'https://poloniex.com/public';
+                var requestCommand = 'returnChartData';
+                var maxDatapointsPerRequest = 200000;
+                var resolutionInSeconds = 0;
+                    
+                switch(resolution) 
+                {
+                    case 'minute':  
+                        resolution = 300;
+                        resolutionInSeconds = resolution;
+                        console.log(chalk.yellow("Warning: API limit, Minimum is 5m resolution, Downloading 5m..."));
+                    break;
+                    case 'hour': 
+                        resolution = 1800;
+                        resolutionInSeconds = resolution;
+                        console.log(chalk.yellow("Warning: API limit, Resolution cannot be 1h, Downloading 30m..."));
+                    break;
+                    case 'day': 
+                        resolution = 86400;
+                        resolutionInSeconds = resolution;
+                };                                         
             };
         
-        // Set Params for API request
+        // Set Params for request loop & create file names
         const request = new wrapper.publicAPI(PUBLIC_URL, exchange);
         var JSONfileName = base + quote + '-' +startTS +'-'+ endTS + '.json';
         var CSVfileName = base + quote + '-' +startTS +'-'+ endTS + '.csv';
@@ -80,10 +81,10 @@ program
         //Loop and create request blocks
         var windowEnd = endTS;
 
-        function loop(){
+        (function loop(){
             setTimeout(function()
             {
-                
+                //Prevent loop requesting data after windowEnd
                 if(startTS + (resolutionInSeconds * maxDatapointsPerRequest) > windowEnd)
                 {
                     endTS = windowEnd;
@@ -122,17 +123,15 @@ program
                     
                     startTS = endTS; 
 
-                    if(startTS != windowEnd){
-                        loop();
-                    } else parseData()
-                },0);           
-            })
-        };
+                    if(startTS != windowEnd) loop(); else parseData()
+                });           
+            },0);
+        })();
 
-    loop();
+
 
     //Parse the data and edit it
-    function parseData() 
+    function parseData()
     {
         switch(exchange) 
         {
@@ -192,7 +191,7 @@ program
             console.log(base+quote);          
             break;
             case 'poloniex':
-            
+            console.log(chalk.cyan('     DATA: ')+ 'Parsing data...');
             data.forEach(function(element) 
             {   
                 var dateToMilSecs = element.date * 1000;
@@ -206,8 +205,7 @@ program
                 element.date = dateString;
                 element.symbol = base+quote;
             });
-            dataList = data;
-            
+            dataList = data;        
         };
 
         let fields = ['symbol', 'date', 'openTime','open', 'high', 'low', 'close', 'volume']
