@@ -8,7 +8,9 @@ const co = require('co');
 const prompt = require('co-prompt');
 const program = require('commander');
 const chalk = require('chalk');
-var FormData = require('form-data');
+
+
+let dataFile = [];
 
 
 // CMD
@@ -29,8 +31,6 @@ program
                 var PUBLIC_URL = "https://api.binance.com//api/v1/klines";
                 var maxDatapointsPerRequest = 500;
                 var resolutionInSeconds = 0;
-
-                //const fields = ['symbol', 'date', 'open', 'high', 'low', 'close', 'volume'];
                 switch(resolution) 
                 {
                     case 'minute':  
@@ -74,6 +74,7 @@ program
                 }
                                         
         }
+        
 
         // Set Params for API request
         const request = new wrapper.publicAPI(PUBLIC_URL, exchange);
@@ -85,29 +86,108 @@ program
         function loop(){
             setTimeout(function(){
                 if(startTS + (resolutionInSeconds * maxDatapointsPerRequest) > windowEnd)
-            {
-            endTS = windowEnd;
-            } else 
-            {
-            endTS = startTS + (resolutionInSeconds * maxDatapointsPerRequest); 
-            };
-            var params = {command: requestCommand, symbol: pair, interval: resolution, startTime: startTS, endTime: endTS}
-                request.returnChartData(params,(err, response) => 
-                
-                {  
-                    if (err) {
-                        throw err.msg;
-                    }
-                    else console.log('response recieved'); 
-                  
-                    console.log(response);
-                    if(startTS != windowEnd){
-                        loop();
-                    }
-                },0);
-            startTS = endTS; 
+                {
+                endTS = windowEnd;
+                } else 
+                {
+                endTS = startTS + (resolutionInSeconds * maxDatapointsPerRequest); 
+                };
+                var params = {command: requestCommand, symbol: pair, interval: resolution, startTime: startTS, endTime: endTS}
+                    request.returnChartData(params,(err, response) => 
+                    
+                    {  
+                        if (err) {
+                            throw err.msg;
+                        }
+                        else console.log('response recieved');
+                        response.forEach(function(item) {
+                            dataFile.push(item)
+                        }); 
+                        
+                        
+                        if(startTS != windowEnd){
+                            loop();
+                        } else parseData()
+                    },0);
+                startTS = endTS; 
             })
         }
-loop();
-    });  
+    loop();
+
+    function parseData() 
+    {
+        switch(exchange) 
+        {
+            case 'binance':
+                dataFile.forEach(function(element) 
+                {
+                    var date = new Date(element[0]);
+                    var hours = "0" + date.getHours();
+                    var minutes = "0" + date.getMinutes();
+                    var seconds = "0" + date.getSeconds();
+                    var formattedTime = hours.substr(-2) + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
+                    element[0] = formattedTime;       
+                    var dateString = ('0' + date.getDate()).slice(-2) +" " + ('0' + (date.getMonth()+1)).slice(-2) + " "+ date.getFullYear();
+                    element[11] = dateString;
+                    var date = new Date(element[6]);
+                    var hours = "0" + date.getHours();
+                    var minutes = "0" + date.getMinutes();
+                    var seconds = "0" + date.getSeconds();
+                    var formattedTime = hours.slice(-2) + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
+                    element[6] = formattedTime;
+                    element.symbol = base+quote;
+                });
+                
+                var dataList = dataFile.map(function(dataPoint)
+                { 
+                    
+                    return { 
+                        openTime: dataPoint[0], 
+                        open: dataPoint[1],
+                        high: dataPoint[2],
+                        low: dataPoint[3],
+                        close: dataPoint[4],
+                        volume: dataPoint[5], 
+                        closeTime: dataPoint[6],
+                        quoteAssetVolume: dataPoint[7],
+                        trades: dataPoint[8],
+                        takerBaseAssetVolume: dataPoint[9],
+                        takerQuoteAssetVolume: dataPoint[10],
+                        date: dataPoint[11],
+                    };                     
+                });
+            break;
+            case 'poloniex':
+            dataFile.forEach(function(element) 
+            {   
+                var dateToMilSecs = element.date * 1000;
+                var date = new Date(dateToMilSecs);
+                var hours = "0" + date.getHours();
+                var minutes = "0" + date.getMinutes();
+                var seconds = "0" + date.getSeconds();
+                var formattedTime = hours.substr(-2) + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
+                element.openTime = formattedTime;       
+                var dateString = ('0' + date.getDate()).slice(-2) +" " + ('0' + (date.getMonth()+1)).slice(-2) + " "+ date.getFullYear();
+                element.date = dateString;
+                element.symbol = base+quote;
+            });
+            dataList = dataFile;
+            
+        }
+        console.log(dataList);
+        let fields = ['symbol', 'date', 'openTime','open', 'high', 'low', 'close', 'volume']
+        
+        var result = json2csv({ data: dataList, fields: fields });
+        fs.writeFile(CSVfileName, result, function(err) 
+        {
+            if (err)
+            {
+                console.log(err);
+            } else 
+            {
+                console.log(chalk.green("filesaved"));
+            }
+        });  
+    }
+});  
 program.parse(process.argv);
