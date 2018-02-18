@@ -153,7 +153,7 @@ program
                         trades: dataPoint[8],
                         takerBaseAssetVolume: dataPoint[9],
                         takerQuoteAssetVolume: dataPoint[10],
-                        date: dataPoint[11],
+                        date: dataPoint[11]
                     };                     
                 });
             break;
