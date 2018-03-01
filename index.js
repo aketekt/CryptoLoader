@@ -20,7 +20,7 @@ var pairList =  ['ZECBTC', 'DASHBTC', 'XRPBTC', 'XMRBTC', 'SDCBTC', 'GNTBTC', 'G
 
 var pairPosition = 0;
 var pairsMax = 105;
-var pairName;
+var pairNow;
 
 // CMD
 program
@@ -167,8 +167,8 @@ program
                         if(startTS == windowEnd)
                         {
                             startTS = windowStart;
-                            pairName = pair;
-                            CSVfileName = pairName + '-' +startTime +'-'+ endTime + '.csv';
+                            pairNow = pair;
+                            CSVfileName = pairNow + '-' +startTime +'-'+ endTime + '.csv';
                             pairPosition++;
                             dataToSave = data;
                             parseData();
@@ -179,7 +179,7 @@ program
                     {
                         if(startTS != windowEnd) loop(); else 
                         {    
-                            pairName = pair;
+                            pairNow = pair;
                             dataToSave = data;
                             parseData();
                         }
@@ -208,7 +208,7 @@ program
                         element[6] = element[0];
                         let openTime = new Date(element[0]);
                         element[0] = dataFormat.formatDate(openTime) + ' ' + dataFormat.formatTime(openTime);      
-                        element.symbol = pairName;    
+                        element.symbol = pairNow;    
                     });               
                
                     // Update dataPoint keys
@@ -238,7 +238,7 @@ program
                         element[0] = dataFormat.formatDate(openTime) + ' ' + dataFormat.formatTime(openTime);      
                         element[6] = dataFormat.formatTime(closeTime);
                         //element[11] = dataFormat.formatDate(openTime); 
-                        element.symbol = pairName; 
+                        element.symbol = pairNow; 
                     });               
                
                     // Update dataPoint keys
@@ -268,7 +268,7 @@ program
                     let dateToMilSecs = element.date * 1000;
                     let openTime = new Date(dateToMilSecs);
                     element.time = dataFormat.formatDate(openTime) + " " + dataFormat.formatTime(openTime);
-                    element.symbol = pairName;
+                    element.symbol = pairNow;
                 });
                 dataList = dataToSave;        
             };
