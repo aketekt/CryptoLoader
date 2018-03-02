@@ -201,8 +201,8 @@ program
                     }   else console.log(chalk.cyan('     DATA: ') + 'Recieved');
                                     
                     startTS = endTS;
+                    
                     if(instrument == 'ALL') {
-                        if (pairPosition <= pairsMax) loop();
                         if(startTS == windowEnd)
                         {
                             startTS = windowStart;
@@ -213,7 +213,7 @@ program
                             parseData();
                             data = [];
                         }
-                        
+                        if (pairPosition <= pairsMax) loop();
                     } else 
                     {
                         if(startTS != windowEnd) loop(); else 
@@ -222,7 +222,6 @@ program
                             dataToSave = data;
                             parseData();
                         }
-                       
                     }
                  });          
              },waitTime);
