@@ -1,5 +1,37 @@
-
-var symbol = 'BTC-ETH';
-var x = symbol.split("-");
-var pair = x[1] + x [0];
-console.log(pair)
+[          
+    "BCCBTC",
+    "ETHBTC", 
+    "NEOBTC",
+    "LTCBTC",
+    "IOTABTC",
+    "DGDBTC",
+    "DGDETH",
+    "XRPBTC",
+    "XLMBTC",
+    "ETCBTC",
+    "EOSBTC",
+    "ADABTC",
+    "TRXBTC",
+    "VENBTC",
+    "ICXBTC",
+    "VIBEBTC",
+    "NANOBTC",
+    "WTCBTC",
+    "BNBBTC",
+    "BNBUSDT",
+    "BNTBTC",
+    "ZRXBTC",
+    "XVGBTC",
+    "LINKBTC",
+    "EOSETH",
+    "IOTAETH",
+    "XRPETH",
+    "ETCETH",
+    "WABIETH",
+    "NEOETH",
+    "BTCUSDT",
+    "ETHUSDT",
+    "NEOUSDT",
+    "BCCUSDT",
+    "LTCUSDT"
+];

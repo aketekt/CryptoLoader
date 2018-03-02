@@ -15,7 +15,44 @@ const dataFormat = require("./lib/common/dataFormat.js");
 let data = []; 
 var dataToSave = [];
 
-var pairList =  ['ZECBTC', 'DASHBTC', 'XRPBTC', 'XMRBTC', 'SDCBTC', 'GNTBTC', 'GNTETH', 'GASBTC', 'GNOBTC', 'GNOETH', 'DGBBTC', 'AMPBTC', 'FCTBTC', 'REPBTC', 'REPETH', 'NXTBTC', 'DOGEBTC', 'MAIDBTC', 'SYSBTC', 'LTCBTC', 'LSKBTC', 'XEMBTC', 'STEEMBTC', 'ETCBTC', 'ETCETH', 'NAVBTC', 'SCBTC', 'BTCUSDT', 'ETHUSDT', 'XMRUSDT', 'DASHUSDT', 'ZECUSDT', 'STRBTC', 'POTBTC', 'GAMEBTC', 'EXPBTC', 'STRATBTC', 'PASCBTC', 'DCRBTC', 'VTCBTC', 'BTSBTC', 'ETCUSDT', 'LTCUSDT', 'XRPUSDT', 'ARDRBTC', 'BURSTBTC', 'ZRXBTC', 'CVCBTC', 'OMGBTC' ];
+var pairList =  
+[          
+    "BCCBTC",
+    "ETHBTC", 
+    "NEOBTC",
+    "LTCBTC",
+    "IOTABTC",
+    "DGDBTC",
+    "DGDETH",
+    "XRPBTC",
+    "XLMBTC",
+    "ETCBTC",
+    "EOSBTC",
+    "ADABTC",
+    "TRXBTC",
+    "VENBTC",
+    "ICXBTC",
+    "VIBEBTC",
+    "NANOBTC",
+    "WTCBTC",
+    "BNBBTC",
+    "BNBUSDT",
+    "BNTBTC",
+    "ZRXBTC",
+    "XVGBTC",
+    "LINKBTC",
+    "EOSETH",
+    "IOTAETH",
+    "XRPETH",
+    "ETCETH",
+    "WABIETH",
+    "NEOETH",
+    "BTCUSDT",
+    "ETHUSDT",
+    "NEOUSDT",
+    "BCCUSDT",
+    "LTCUSDT"
+];
 
 
 var pairPosition = 0;
@@ -46,6 +83,7 @@ program
                 var pair = x[1] + x[0];
                 var maxDatapointsPerRequest = 119;
                 var PUBLIC_URL;
+                var waitTime = 6000;
 
             switch(resolution) 
             {
@@ -68,6 +106,7 @@ program
                 var PUBLIC_URL = "https://api.binance.com/api/v1/klines";
                 var maxDatapointsPerRequest = 500;
                 var resolutionInSeconds = 0;
+                var waitTime = 500;
 
                 switch(resolution) 
                 {
@@ -92,6 +131,7 @@ program
                 var requestCommand = 'returnChartData';
                 var maxDatapointsPerRequest = 10000;
                 var resolutionInSeconds = 0;
+                var waitTime = 1000;
                     
                 switch(resolution) 
                 {
@@ -129,6 +169,7 @@ program
                 {
                     endTS = windowEnd;
                 } else endTS = startTS + (resolutionInSeconds * maxDatapointsPerRequest); 
+                
                 if(instrument == 'ALL') pair = pairList[pairPosition];
 
                 var params ={
@@ -138,31 +179,29 @@ program
                                  startTime: startTS, 
                                  endTime: endTS
                             };
-    
-                           
+       
                  //console.log(chalk.redBright('REQUEST FAILED: Retrying ' + cntr + ' of ' + retryTimes + 'times...' ));
-                           
-                 request.returnChartData(params,(err, response) =>             
-                 {   
-                     if (err) {
-                         throw err.msg;
-                     }   else console.log(chalk.cyan('     RESPONSE: ')+'200');
- 
-                     //Log some human readable dates for each request. 
-                     if(exchange != 'poloniex') {
-                         console.log(chalk.cyan('     REQUEST BLOCK: ')+ new Date(startTS) + ' - ' + new Date(endTS));          
-                     }   else console.log(chalk.cyan('     REQUEST BLOCK: ')+ new Date((startTS *1000)) + ' - ' + new Date((endTS * 1000))); 
+                 
+                request.returnChartData(params,(err, response) =>             
+                {       
+                    //Log some human readable dates for each request. 
+                    if(exchange != 'poloniex') {
+                        console.log(chalk.cyan('     REQUEST BLOCK: ')+ new Date(startTS) + ' - ' + new Date(endTS));          
+                    }   else console.log(chalk.cyan('     REQUEST BLOCK: ')+ new Date((startTS *1000)) + ' - ' + new Date((endTS * 1000)));
                     
+                    if (err) {
+                        throw err.msg;
+                    }   else console.log(chalk.cyan('     RESPONSE: ')+'200'); 
                      
-                     response.forEach(function(item) {
-                         data.push(item)  
-                     });
-                     if (err) {
-                         throw err.msg;
-                     }   else console.log(chalk.cyan('     DATA: ') + 'Recieved');
+                    response.forEach(function(item) {
+                        data.push(item)  
+                    });
+                    if (err) {
+                        throw err.msg;
+                    }   else console.log(chalk.cyan('     DATA: ') + 'Recieved');
                                     
-                     startTS = endTS;
-                     if(instrument == 'ALL') {
+                    startTS = endTS;
+                    if(instrument == 'ALL') {
                         if (pairPosition <= pairsMax) loop();
                         if(startTS == windowEnd)
                         {
@@ -186,14 +225,8 @@ program
                        
                     }
                  });          
-             },750);
+             },waitTime);
          })();
-
-
-        
-           
-
-     
       
     //Parse the data and edit it
     function parseData()
@@ -271,20 +304,20 @@ program
                     element.symbol = pairNow;
                 });
                 dataList = dataToSave;        
-            };
-
-            //Write file
-            let fields = ['symbol', /*"TS",'date',*/ 'time','open', 'high', 'low', 'close', 'volume']
-            var result = json2csv({ data: dataList, fields: fields });
-           
-            fs.writeFile(CSVfileName, result, function(err) 
-            {
-                if (err) {
-                    console.log(err);
-                } else console.log(chalk.greenBright("     FILE SAVED AS: ") + CSVfileName);
-            });  
-            dataToSave = [];
         };
-    });
+
+        //Write file
+        let fields = ['symbol', /*"TS",'date',*/ 'time','open', 'high', 'low', 'close', 'volume']
+        var result = json2csv({ data: dataList, fields: fields });
+        
+        fs.writeFile(CSVfileName, result, function(err) 
+        {
+            if (err) {
+                console.log(err);
+            } else console.log(chalk.greenBright("     FILE SAVED AS: ") + CSVfileName);
+        });  
+        dataToSave = [];
+    };
+});
       
 program.parse(process.argv);
