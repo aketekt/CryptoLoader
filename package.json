@@ -1,6 +1,6 @@
 {
   "name": "cryptoloader",
-  "version": "2.0.0-git",
+  "version": "2.0.0",
   "description": "Simple crypto data downloader",
   "keywords": [
     "poloniex",
