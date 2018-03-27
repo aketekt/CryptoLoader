@@ -19,7 +19,7 @@ NPM 5.3.0
 *Usage*
 cryptoloader <exchange> <symbol> <startTime> <endTime> <resolution>  
 
-`$ cryptoloader binance BTC-ETH 01/03/2018 01/04/2018 minute` 
+`$ cryptoloader binance BTC ETH 01/03/2018 01/04/2018 minute` 
 
 *Get data for all coins
 `$ cryptoloader binance ALL 01/03/2018 01/04/2018 minute` 

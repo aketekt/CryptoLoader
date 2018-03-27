@@ -56,7 +56,7 @@ var pairList =
 
 
 var pairPosition = 0;
-var pairsMax = 105;
+var pairsMax = (pairList.length) - 1;
 var pairNow;
 
 // CMD
